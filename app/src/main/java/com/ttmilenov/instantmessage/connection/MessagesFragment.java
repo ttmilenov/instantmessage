@@ -37,7 +37,7 @@ import com.ttmilenov.instantmessage.activity.MainActivity;
  * <p />
  * <p />
  * Activities containing this fragment MUST implement the {@link Callbacks}
- * interface.
+ * interface.s
  */
 public class MessagesFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -130,7 +130,8 @@ public class MessagesFragment extends ListFragment implements LoaderManager.Load
 			super(context, c, 0);
 		}
 
-		@Override public int getCount() {
+		@Override
+		public int getCount() {
 			return getCursor() == null ? 0 : super.getCount();
 		}
 

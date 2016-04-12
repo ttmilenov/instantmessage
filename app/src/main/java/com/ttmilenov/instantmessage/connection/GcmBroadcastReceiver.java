@@ -7,8 +7,10 @@ import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.PowerManager;
+import android.provider.ContactsContract;
 import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
 
@@ -20,6 +22,9 @@ import com.ttmilenov.instantmessage.storage.DataProvider;
 import com.ttmilenov.instantmessage.R;
 import com.ttmilenov.instantmessage.activity.MainActivity;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 /**
  * Created by Teodor Milenov on 4/9/2016.
  */
@@ -30,6 +35,7 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         ctx = context;
+        String senderProfileId = null;
         PowerManager mPowerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock mWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
         mWakeLock.acquire();
@@ -37,9 +43,9 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
             GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
             String messageType = gcm.getMessageType(intent);
             if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
-                sendNotification("Send error", false);
+                sendNotification("Send error", senderProfileId, false);
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
-                sendNotification("Deleted messages on server", false);
+                sendNotification("Deleted messages on server", senderProfileId, false);
             } else {
                 String msg = intent.getStringExtra(DataProvider.COL_MESSAGE);
                 String senderEmail = intent.getStringExtra(DataProvider.COL_SENDER_EMAIL);
@@ -52,7 +58,17 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
                 context.getContentResolver().insert(DataProvider.CONTENT_URI_MESSAGES, values);
 
                 if (Common.isNotify()) {
-                    sendNotification("New message", true);
+
+                    Cursor cursor = context.getContentResolver().query(
+                            DataProvider.CONTENT_URI_PROFILE,
+                            new String[]{DataProvider.COL_ID},
+                            DataProvider.COL_EMAIL + "= ?",
+                            new String[]{senderEmail},
+                            null);
+                    if (cursor.moveToFirst()) {
+                        senderProfileId = cursor.getString(cursor.getColumnIndex(DataProvider.COL_ID));
+                    }
+                    sendNotification("New message", senderProfileId, true);
                 }
             }
             setResultCode(Activity.RESULT_OK);
@@ -61,7 +77,7 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
-    private void sendNotification(String text, boolean launchApp) {
+    private void sendNotification(String text, String senderProfileId, boolean launchApp) {
         NotificationManager mNotificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder notification = new NotificationCompat.Builder(ctx);
         notification.setContentTitle(ctx.getString(R.string.app_name));
@@ -73,7 +89,13 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
         }
 
         if (launchApp) {
-            Intent intent = new Intent(ctx, ChatActivity.class);
+            Intent intent = null;
+            if (senderProfileId != null) {
+                intent = new Intent(ctx, ChatActivity.class);
+                intent.putExtra(Common.PROFILE_ID, senderProfileId);
+            } else {
+                intent = new Intent(ctx, MainActivity.class);
+            }
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             PendingIntent pi = PendingIntent.getActivity(ctx, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             notification.setContentIntent(pi);

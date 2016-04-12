@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -43,6 +44,7 @@ public class ChatActivity extends ActionBarActivity implements MessagesFragment.
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.chat_activity);
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
 		profileId = getIntent().getStringExtra(Common.PROFILE_ID);
 		msgEdit = (EditText) findViewById(R.id.msg_edit);
