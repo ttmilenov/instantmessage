@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/InstantMessage.iml" filepath="$PROJECT_DIR$/InstantMessage.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/instantmessage.iml" filepath="$PROJECT_DIR$/instantmessage.iml" />
       <module fileurl="file://$PROJECT_DIR$/instantmessage.iml" filepath="$PROJECT_DIR$/instantmessage.iml" />
     </modules>
   </component>
