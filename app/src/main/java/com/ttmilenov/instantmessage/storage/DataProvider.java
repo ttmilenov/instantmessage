@@ -12,7 +12,7 @@ import android.net.Uri;
 /**
  * Created by Teodor Milenov on 4/9/2016.
  */
-public class DataProvider extends ContentProvider{
+public class DataProvider extends ContentProvider {
 
     public static final Uri CONTENT_URI_MESSAGES = Uri.parse("content://com.ttmilenov.instantmessage.provider/messages");
     public static final Uri CONTENT_URI_PROFILE = Uri.parse("content://com.ttmilenov.instantmessage.provider/profile");
